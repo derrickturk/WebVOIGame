@@ -8,7 +8,6 @@ import System.Random
 import Control.Monad.Prob
 import Data.VoiGame
 import Web.Scotty
-import qualified Data.Text.Lazy as TL
 
 sampleSeed :: Int -> Prob a -> a
 sampleSeed = sampleProbGen . mkStdGen
@@ -66,5 +65,12 @@ twoGuyGameAction = do
 main :: IO ()
 main = scotty 3000 $ do
   get "/twoguygame" twoGuyGameAction
-  get "/game.html" $ file "html/game.html"
-  get "/js/game.js" $ file "js/game.js"
+  get "/game.html" $
+    (setHeader "Content-Type" "text/html") >>
+    (file "html/game.html")
+  get "/js/game.js" $
+    (setHeader "Content-Type" "text/javascript") >>
+    (file "js/game.js")
+  get "/css/game.css" $
+    (setHeader "Content-Type" "text/css") >>
+    (file "css/game.css")

@@ -110,7 +110,12 @@
         var bar = g.selectAll('bar')
                    .data(bins)
                    .enter().append('g')
-                           .attr('class', 'bar')
+                           .attr('class', function (d) {
+                               if (d.x0 < 0)
+                                   return 'bar bar-negative';
+                               else
+                                   return 'bar bar-positive';
+                           })
                            .attr('transform', function (d) {
                                return 'translate(' + x(d.x0) + ',' +
                                    y(d.length) + ')';

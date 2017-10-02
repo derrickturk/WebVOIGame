@@ -1,0 +1,45 @@
+html, body {
+    padding: 0;
+    font-family: 'Gill Sans', 'Gill Sans MT', 'Helvetica', 'sans-serif';
+}
+
+body {
+    width: 960px;
+    margin: 0 auto;
+}
+
+input {
+    background-color: #ccffcc;
+    padding: 0.5em;
+    vertical-align: middle;
+}
+
+/* should really put a class on these */
+span.input-label {
+    font-weight: bold;
+    color: #007700;
+}
+
+span.output-label {
+    font-weight: bold;
+    color: #000033;
+}
+
+#results {
+    padding: 1em;
+    background-color: #eeeeff;
+}
+
+#resultHist {
+    position: relative;
+    left: -1em;
+    background-color: #eeeeff;
+}
+
+g.bar rect {
+    fill: navy;
+}
+
+g.bar-negative rect {
+    fill: firebrick;
+}
