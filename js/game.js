@@ -27,7 +27,7 @@
     function connect(context, mbr, input, label)
     {
         input.addEventListener('change', function () {
-            context[mbr] = Number.parseFloat(input.value);
+            context[mbr] = parseFloat(input.value);
             label.innerHTML = context[mbr].toFixed(2);
             // probably have a time delay here to batch multiple changes
             getMC(context, updateResults);
