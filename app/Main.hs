@@ -41,24 +41,30 @@ playTwoGuyVOIGame (TwoGuyVOIGame {..}) = voiGame
   , (VoiStage secondGuyChance secondGuyCost)
   ]
 
-main :: IO ()
-main = scotty 3000 $ get "/twoguygame" $ do
+twoGuyGameAction :: ActionM ()
+twoGuyGameAction = do
   seed <- param "seed"
   trls <- param "trials"
 
-  sCh <- param "successChance"
+  sCh <- (/ 100.0) <$> param "successChance"
   sM <- param "successMean"
   sR <- param "successRatio"
   sC <- param "successCost"
 
-  fgCh <- param "firstGuyChance"
+  fgCh <- (/ 100.0) <$> param "firstGuyChance"
   fgC <- param "firstGuyCost"
 
-  sgCh <- param "secondGuyChance"
+  sgCh <- (/ 100.0) <$> param "secondGuyChance"
   sgC <- param "secondGuyCost"
 
   case mkTwoGuyVOIGame (sCh, sM, sR, sC, fgCh, fgC, sgCh, sgC) of
     Nothing -> html $ "<h1>You failed!</h1>"
     Just game -> do
       let mc = sampleSeed seed $ trials trls $ evalStateT (playTwoGuyVOIGame game) 0.0
-      html $ TL.pack $ show mc
+      json mc
+
+main :: IO ()
+main = scotty 3000 $ do
+  get "/twoguygame" twoGuyGameAction
+  get "/game.html" $ file "html/game.html"
+  get "/js/game.js" $ file "js/game.js"
