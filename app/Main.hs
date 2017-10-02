@@ -7,7 +7,10 @@ import Control.Monad.Trans.State.Lazy (StateT, evalStateT)
 import System.Random
 import Control.Monad.Prob
 import Data.VoiGame
+
 import Web.Scotty
+import Network.Wai.Handler.Warp (defaultSettings, setHost, setPort)
+
 import Control.Concurrent (forkIO, threadDelay)
 import System.Process (createProcess, CreateProcess(..), shell)
 
@@ -84,4 +87,5 @@ main = do
     _ <- createProcess $
       (shell "start http://localhost:3000/game.html") { detach_console = True }
     return ()
-  scotty 3000 server
+  let opts = Options 0 $ setHost "127.0.0.1" $ setPort 3000 $ defaultSettings
+  scottyOpts opts server
