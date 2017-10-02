@@ -8,6 +8,8 @@ import System.Random
 import Control.Monad.Prob
 import Data.VoiGame
 import Web.Scotty
+import Control.Concurrent (forkIO, threadDelay)
+import System.Process (createProcess, CreateProcess(..), shell)
 
 sampleSeed :: Int -> Prob a -> a
 sampleSeed = sampleProbGen . mkStdGen
@@ -62,8 +64,8 @@ twoGuyGameAction = do
       let mc = sampleSeed seed $ trials trls $ evalStateT (playTwoGuyVOIGame game) 0.0
       json mc
 
-main :: IO ()
-main = scotty 3000 $ do
+server :: ScottyM ()
+server = do
   get "/twoguygame" twoGuyGameAction
   get "/game.html" $
     (setHeader "Content-Type" "text/html") >>
@@ -74,3 +76,12 @@ main = scotty 3000 $ do
   get "/css/game.css" $
     (setHeader "Content-Type" "text/css") >>
     (file "css/game.css")
+
+main :: IO ()
+main = do
+  _ <- forkIO $ do
+    threadDelay 10000 -- 10ms
+    _ <- createProcess $
+      (shell "start http://localhost:3000/game.html") { detach_console = True }
+    return ()
+  scotty 3000 server

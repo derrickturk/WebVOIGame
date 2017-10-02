@@ -34,4 +34,5 @@ executable WebVOIGame
                      , random
                      , transformers
                      , scotty
+                     , process
                      , text
