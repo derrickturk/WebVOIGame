@@ -142,12 +142,12 @@
         var input = document.getElementById(name),
             label = document.getElementById(name + 'Label');
         connect(setup, name, input, label);
-        getMC(setup, updateResults);
     }
 
     function initGame()
     {
         Object.keys(setup).forEach(initInput);
+        getMC(setup, updateResults);
     }
 
     ns.initGame = initGame;
