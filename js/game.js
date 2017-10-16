@@ -11,10 +11,10 @@
         successMean: 500,
         successRatio: 5,
         successCost: 200,
-        firstGuyChance: 60,
-        firstGuyCost: 50,
-        secondGuyChance: 90,
-        secondGuyCost: 50
+        chance1: 60,
+        cost1: 50,
+        chance2: 90,
+        cost2: 50
     };
 
     function encodeParams(context)
@@ -38,11 +38,12 @@
     {
         context.seed = context.seed || SEED;
         context.trials = context.trials || TRIALS;
+        context.stages = 2;
 
         var xhr = new XMLHttpRequest();
-        var target ='http://localhost:3000/twoguygame?' + encodeParams(context);
-        xhr.open('GET',
-          'http://localhost:3000/twoguygame?' + encodeParams(context));
+        var target ='http://localhost:3000/gameOutcome?' +
+          encodeParams(context);
+        xhr.open('GET', target);
         xhr.onreadystatechange = function () {
             if (xhr.readyState == XMLHttpRequest.DONE)
                 if (xhr.status == 200)

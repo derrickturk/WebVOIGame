@@ -35,5 +35,6 @@ executable WebVOIGame
                      , transformers
                      , scotty
                      , warp
+                     , http-types
                      , process
                      , text

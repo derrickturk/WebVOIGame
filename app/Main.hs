@@ -3,13 +3,17 @@
 
 module Main where
 
-import Control.Monad.Trans.State.Lazy (StateT, evalStateT)
 import System.Random
+import Control.Monad (forM)
+import Control.Monad.Trans.State.Lazy (evalStateT)
+
 import Control.Monad.Prob
 import Data.VoiGame
 
 import Web.Scotty
 import Network.Wai.Handler.Warp (defaultSettings, setHost, setPort)
+import Network.HTTP.Types.Status (unprocessableEntity422)
+import qualified Data.Text.Lazy as TL
 
 import Control.Concurrent (forkIO, threadDelay)
 import System.Process (createProcess, CreateProcess(..), shell)
@@ -17,59 +21,53 @@ import System.Process (createProcess, CreateProcess(..), shell)
 sampleSeed :: Int -> Prob a -> a
 sampleSeed = sampleProbGen . mkStdGen
 
-data TwoGuyVOIGame =
-  TwoGuyVOIGame { successChance :: Chance
-                , successMean :: Double
-                , successP10P90 :: P10P90Ratio
-                , successCost :: Double
-                , firstGuyChance :: Chance
-                , firstGuyCost :: Double
-                , secondGuyChance :: Chance
-                , secondGuyCost :: Double
-                }
+makeSuccess :: Double -> Double -> Double -> Double -> Maybe VoiSuccess
+makeSuccess sChance sMean sP10P90 sCost = do
+  sChance' <- chance sChance
+  sP10P90' <- p10p90Ratio sP10P90
+  return $ VoiSuccess sChance' sMean sP10P90' sCost
 
-mkTwoGuyVOIGame :: (Double, Double, Double, Double,
-                    Double, Double, Double, Double) -> Maybe TwoGuyVOIGame
-mkTwoGuyVOIGame (sCh, sM, sR, sC, fgCh, fgC, sgCh, sgC) = do
-  sCh' <- chance sCh
-  sR' <- p10p90Ratio sR
-  fgCh' <- chance fgCh
-  sgCh' <- chance sgCh
-  return $ TwoGuyVOIGame sCh' sM sR' sC fgCh' fgC sgCh' sgC
+makeStage :: Double -> Double -> Maybe VoiStage
+makeStage sChance sCost = do
+  sChance' <- chance sChance
+  return $ VoiStage sChance' sCost
 
-playTwoGuyVOIGame :: TwoGuyVOIGame -> StateT Double Prob Double
-playTwoGuyVOIGame (TwoGuyVOIGame {..}) = voiGame
-  (VoiSuccess successChance successMean successP10P90 successCost)
-  [
-    (VoiStage firstGuyChance firstGuyCost)
-  , (VoiStage secondGuyChance secondGuyCost)
-  ]
-
-twoGuyGameAction :: ActionM ()
-twoGuyGameAction = do
-  seed <- param "seed"
-  trls <- param "trials"
-
+gameFromParams :: ActionM (Maybe VoiGame)
+gameFromParams = do
   sCh <- (/ 100.0) <$> param "successChance"
   sM <- param "successMean"
   sR <- param "successRatio"
   sC <- param "successCost"
+  let success = makeSuccess sCh sM sR sC
 
-  fgCh <- (/ 100.0) <$> param "firstGuyChance"
-  fgC <- param "firstGuyCost"
+  stageCount <- param "stages" :: ActionM Int
+  stages <- forM (enumFromTo 1 stageCount) $ \i -> do
+    ch <- (/ 100.0) <$> (param $ "chance" `mappend` (TL.pack $ show i))
+    cost <- param $ "cost" `mappend` (TL.pack $ show i)
+    return $ makeStage ch cost
 
-  sgCh <- (/ 100.0) <$> param "secondGuyChance"
-  sgC <- param "secondGuyCost"
+  return $ do
+    success' <- success
+    stages' <- sequence stages
+    return $ VoiGame success' stages'
 
-  case mkTwoGuyVOIGame (sCh, sM, sR, sC, fgCh, fgC, sgCh, sgC) of
-    Nothing -> html $ "<h1>You failed!</h1>"
-    Just game -> do
-      let mc = sampleSeed seed $ trials trls $ evalStateT (playTwoGuyVOIGame game) 0.0
-      json mc
+gameAction :: ActionM ()
+gameAction = do
+  seed <- param "seed"
+  trls <- param "trials"
+
+  game <- gameFromParams
+
+  case game of
+    Nothing -> do
+      status unprocessableEntity422
+      text "Invalid parameter."
+    Just g ->
+      json $ sampleSeed seed $ trials trls $ evalStateT (playVoiGame g) 0.0
 
 server :: ScottyM ()
 server = do
-  get "/twoguygame" twoGuyGameAction
+  get "/gameOutcome" gameAction
   get "/game.html" $
     (setHeader "Content-Type" "text/html") >>
     (file "html/game.html")

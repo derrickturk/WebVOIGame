@@ -7,7 +7,8 @@ module Data.VoiGame (
   , getP10P90Ratio
   , VoiSuccess(..)
   , VoiStage(..)
-  , voiGame
+  , VoiGame(..)
+  , playVoiGame
 ) where
 
 import Control.Monad (when)
@@ -39,8 +40,10 @@ data VoiStage = VoiStage { stageChance :: !Chance
                          , stageCost :: !Double
                          }
 
-voiGame :: VoiSuccess -> [VoiStage] -> StateT Double Prob Double
-voiGame success stages = do
+data VoiGame = VoiGame VoiSuccess [VoiStage]
+
+playVoiGame :: VoiGame -> StateT Double Prob Double
+playVoiGame (VoiGame success stages) = do
   actualSuccess <- lift $ binary $ getChance $ successChance success
   doIt <- runStages actualSuccess stages
   when doIt $ modify (subtract $ successCost success)
