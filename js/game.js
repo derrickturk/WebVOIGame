@@ -7,6 +7,7 @@
         TRIALS = 10000;
 
     var setup = {
+        // stages: 2,
         successChance: 30,
         successMean: 500,
         successRatio: 5,
