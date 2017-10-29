@@ -6,16 +6,13 @@
     var SEED = 12345,
         TRIALS = 10000;
 
+    var stages = 0;
+
     var setup = {
-        // stages: 2,
         successChance: 30,
         successMean: 500,
         successRatio: 5,
         successCost: 200,
-        chance1: 60,
-        cost1: 50,
-        chance2: 90,
-        cost2: 50
     };
 
     function encodeParams(context)
@@ -39,10 +36,10 @@
     {
         context.seed = context.seed || SEED;
         context.trials = context.trials || TRIALS;
-        context.stages = 2;
 
         var xhr = new XMLHttpRequest();
         var target ='http://localhost:3000/gameOutcome?' +
+          'stages=' + encodeURIComponent(stages) + '&' +
           encodeParams(context);
         xhr.open('GET', target);
         xhr.onreadystatechange = function () {
@@ -145,8 +142,14 @@
         connect(setup, name, input, label);
     }
 
-    function initGame()
+    function initGame(stageCount)
     {
+        stages = stageCount;
+        for (var i = 1; i <= stages; ++i) {
+          setup['chance' + i] = 60;
+          setup['cost' + i] = 50;
+        }
+
         Object.keys(setup).forEach(initInput);
         getMC(setup, updateResults);
     }

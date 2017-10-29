@@ -14,10 +14,7 @@ import Actions
 server :: ScottyM ()
 server = do
   get "/gameOutcome" gameAction
-  get "/gameDescription" gameDescAction
-  get "/game.html" $
-    (setHeader "Content-Type" "text/html") >>
-    (file "html/game.html")
+  get "/game" gamePageAction
   get "/js/game.js" $
     (setHeader "Content-Type" "text/javascript") >>
     (file "js/game.js")

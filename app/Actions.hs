@@ -3,7 +3,7 @@
 
 module Actions (
     gameAction
-  , gameDescAction
+  , gamePageAction
 ) where
 
 import System.Random
@@ -70,7 +70,7 @@ gameAction = do
     Just g ->
       json $ sampleSeed seed $ trials trls $ evalStateT (playVoiGame g) 0.0
 
-gameDescAction :: ActionM ()
-gameDescAction = do
-  stageCount <- param "stages" :: ActionM Int
-  html $ renderHtml $ gameDescTemplate stageCount
+gamePageAction :: ActionM ()
+gamePageAction = do
+  stageCount <- param "stages" `rescue` const (return 0) :: ActionM Int
+  html $ renderHtml $ gamePage stageCount

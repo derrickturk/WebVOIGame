@@ -5,7 +5,7 @@ html, body {
 
 body {
     width: 960px;
-    margin: 0 auto;
+    margin: 2em auto;
     line-height: 200%;
 }
 
@@ -43,4 +43,17 @@ g.bar rect {
 
 g.bar-negative rect {
     fill: firebrick;
+}
+
+#linkbar {
+    width: 900px;
+    margin: 0 auto;
+}
+
+a.prev-link {
+    float: left;
+}
+
+a.next-link {
+    float: right;
 }

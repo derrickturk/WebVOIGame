@@ -37,6 +37,7 @@ executable WebVOIGame
                      , transformers
                      , scotty
                      , blaze-html
+                     , blaze-markup
                      , warp
                      , http-types
                      , process

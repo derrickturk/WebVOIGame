@@ -3,14 +3,17 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
 
 module Templates (
-    gameDescTemplate
+    gamePage
 ) where
 
 import Text.Blaze.Html5 as H
 import Text.Blaze.Html5.Attributes as A
+import Text.Blaze.Internal (MarkupM(Parent)) -- for svg "custom tag"
 
 import Data.Monoid ((<>))
 import Data.Maybe (fromMaybe)
+
+import Control.Monad (when)
 
 import qualified Data.Text as T
 
@@ -25,11 +28,13 @@ data SliderSetup =
               , step :: Double
               }
 
-pageTitle :: Int -> Html
-pageTitle n = h1 $ toHtml $
-  "The " <> fromMaybe plain fancy <> " Guy VOI Game" where
-    plain = T.pack $ show n
-    fancy = T.toTitle <$> ENG.us_cardinal defaultInflection n
+-- gross
+svg = Parent "svg" "<svg" "</svg>"
+
+pageTitle :: Int -> T.Text
+pageTitle n = "The " <> fromMaybe plain fancy <> " Guy VOI Game" where
+  plain = T.pack $ show n
+  fancy = T.toTitle <$> ENG.us_cardinal defaultInflection n
 
 slider :: SliderSetup -> Html
 slider SliderSetup { name, value, min, max, step } = do
@@ -81,7 +86,7 @@ intro = do
                          , max = 1000.0
                          , step = 50.0
                          }
-    "."
+    " dollars."
 
 guyNames :: [T.Text]
 guyNames = go names where
@@ -107,7 +112,8 @@ guyRelations = relns <> cycle (("other " <>) <$> relns) where
 
 stageBlocks :: Int -> Html
 stageBlocks n = go n guyNames guyRelations 1 where
-  go 0 _ _ _ = mempty
+  go n _ _ _ 
+    | n <= 0 = mempty
   go n (nm:names) (re:relns) i = do
     p $ do
       "God's "
@@ -121,8 +127,8 @@ stageBlocks n = go n guyNames guyRelations 1 where
                            , max = 200.0
                            , step= 5.0
                            }
-      ", they will peek at God's coin and tell you what they see before you \
-        \have to make your decision. However, "
+      " dollars , they will peek at God's coin and tell you what they see \
+        \before you have to make your decision. However, "
       text nm
       " is a known liar: in fact they tell the truth only "
       slider $ SliderSetup { name = "chance" <> T.pack (show i)
@@ -134,8 +140,66 @@ stageBlocks n = go n guyNames guyRelations 1 where
       "% of the time."
     go (n - 1) names relns (i + 1)
 
-gameDescTemplate :: Int -> Html
-gameDescTemplate stages = do
-  pageTitle stages
+resultsBlock :: Html
+resultsBlock = do
+  p "If you accept all the offers:"
+  H.div ! A.id "results" $ do
+    p $ do
+      "On average, you will achieve a net payout of $"
+      H.span ! A.id "resultMean" ! class_ "output-label" $ "0.00"
+      "."
+    p $ do
+      "You'll lose money about "
+      H.span ! A.id "resultChanceLoss" ! class_ "output-label" $ "0.00"
+      "% of the time."
+    p $ do
+      "You'll lose a bunch of money about "
+      H.span ! A.id "resultChanceBigLoss" ! class_ "output-label" $ "0.00"
+      "% of the time."
+    p $ do
+      "You'll gain a bunch of money about "
+      H.span ! A.id "resultChanceBigGain" ! class_ "output-label" $ "0.00"
+      "% of the time."
+    p "Here's the result distribution:"
+    p $ svg ! A.id "resultHist" ! width "960" ! height "540" $ mempty
+
+stageLinks :: Int -> Html
+stageLinks n = H.div ! A.id "linkbar" $ do
+  when (n > 0) $
+    a ! class_ "prev-link"
+      ! href (stringValue $ "game?stages=" <> show (n - 1))
+      $ string ("<< " <> (show (n - 1)) <> "-stage game")
+  a ! class_ "next-link"
+    ! href (stringValue $ "game?stages=" <> show (n + 1))
+    $ string ((show (n + 1)) <> "-stage game >>")
+
+gamePageHead :: Int -> Html
+gamePageHead stages = H.head $ do
+  meta ! charset "UTF-8"
+  H.title $ text $ pageTitle stages
+  script
+    ! type_ "text/javascript"
+    ! src "https://d3js.org/d3.v4.min.js"
+    $ mempty
+  script
+    ! type_ "text/javascript"
+    ! src "js/game.js"
+    $ mempty
+  link
+    ! rel "stylesheet"
+    ! href "css/game.css"
+
+gamePageBody :: Int -> Html
+gamePageBody stages = do
+  h1 $ text $ pageTitle stages
   intro
   stageBlocks stages
+  resultsBlock
+  stageLinks stages
+  script ! type_ "text/javascript" $
+    text $ "initGame(" <> T.pack (show stages) <> ");"
+
+gamePage :: Int -> Html
+gamePage stages = html $ do
+  H.head $ gamePageHead stages
+  body $ gamePageBody stages
