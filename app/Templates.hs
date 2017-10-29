@@ -83,11 +83,59 @@ intro = do
                          }
     "."
 
+guyNames :: [T.Text]
+guyNames = go names where
+  go [] = (<> " Jr") <$> go names
+  go (x:xs) = x:go xs
+  names = [ "Bob"
+          , "Sally"
+          , "Joe"
+          , "Mike"
+          , "Cassandra"
+          , "Katie"
+          ]
+
+guyRelations :: [T.Text]
+guyRelations = relns <> cycle (("other " <>) <$> relns) where
+  relns = [ "brother"
+          , "niece"
+          , "cousin"
+          , "nephew"
+          , "neighbor"
+          , "co-worker"
+          ]
+
+stageBlocks :: Int -> Html
+stageBlocks n = go n guyNames guyRelations 1 where
+  go 0 _ _ _ = mempty
+  go n (nm:names) (re:relns) i = do
+    p $ do
+      "God's "
+      text re
+      ", "
+      text nm
+      ", approaches you and offers a deal: for a cost of "
+      slider $ SliderSetup { name = "cost" <> T.pack (show i)
+                           , value = 10.00
+                           , min = 0.0
+                           , max = 200.0
+                           , step= 5.0
+                           }
+      ", they will peek at God's coin and tell you what they see before you \
+        \have to make your decision. However, "
+      text nm
+      " is a known liar: in fact they tell the truth only "
+      slider $ SliderSetup { name = "chance" <> T.pack (show i)
+                           , value = 60.0
+                           , min = 0.0
+                           , max = 100.0
+                           , step = 1.0
+                           }
+      "% of the time."
+    go (n - 1) names relns (i + 1)
+
 gameDescTemplate :: Int -> Html
 gameDescTemplate stages = do
   pageTitle stages
   intro
-  p $ do
-    "a game with "
-    toHtml $ show stages
-    " stages"
+  stageBlocks stages
