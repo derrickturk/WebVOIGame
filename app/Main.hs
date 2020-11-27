@@ -24,12 +24,10 @@ server = do
 
 main :: IO ()
 main = do
-  {--
   _ <- forkIO $ do
     threadDelay 10000 -- 10ms
     _ <- createProcess $
-      (shell "start http://localhost:3000/game.html") { detach_console = True }
+      (shell "start http://localhost:3000/game") { detach_console = True }
     return ()
-  --}
   let opts = Options 0 $ setHost "127.0.0.1" $ setPort 3000 $ defaultSettings
   scottyOpts opts server
