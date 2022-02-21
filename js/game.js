@@ -38,7 +38,7 @@
         context.trials = context.trials || TRIALS;
 
         var xhr = new XMLHttpRequest();
-        var target ='http://localhost:3000/gameOutcome?' +
+        var target ='gameOutcome?' +
           'stages=' + encodeURIComponent(stages) + '&' +
           encodeParams(context);
         xhr.open('GET', target);
