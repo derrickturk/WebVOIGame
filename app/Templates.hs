@@ -53,7 +53,7 @@ slider SliderSetup { name, value, min, max, step } = do
 intro :: Html
 intro = do
   p $ do
-    "God flips a coin with a "
+    "A mysterious, wealthy, stranger flips a coin with a "
     slider $ SliderSetup { name = "successChance"
                          , value = 30.0
                          , min = 0.0
@@ -62,7 +62,7 @@ intro = do
                          }
     "% chance of “heads”."
   p $ do
-    "If He gets heads, He assigns a payout drawn from a log-normal \
+    "If he gets heads, he assigns a payout drawn from a log-normal \
       \distribution with a mean of "
     slider $ SliderSetup { name = "successMean"
                          , value = 500.0
@@ -79,7 +79,7 @@ intro = do
                          }
     "."
   p $ do
-    "God offers to sell you the payout, if any, at a cost of "
+    "The stranger offers to sell you the payout, if any, at a cost of "
     slider $ SliderSetup { name = "successCost"
                          , value = 200.0
                          , min = 0.0
@@ -116,7 +116,7 @@ stageBlocks n = go n guyNames guyRelations (1::Int) where
     | n <= 0 = mempty
   go n (nm:names) (re:relns) i = do
     p $ do
-      "God's "
+      "The mysterious stranger's "
       text re
       ", "
       text nm
@@ -127,7 +127,7 @@ stageBlocks n = go n guyNames guyRelations (1::Int) where
                            , max = 200.0
                            , step= 5.0
                            }
-      " dollars , they will peek at God's coin and tell you what they see \
+      " dollars , they will peek at his coin and tell you what they see \
         \before you have to make your decision. However, "
       text nm
       " is a known liar: in fact they tell the truth only "
