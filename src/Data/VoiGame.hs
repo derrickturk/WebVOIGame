@@ -58,6 +58,10 @@ runStages _ [] = return True
 runStages actualSuccess (s:stages) = do
   modify (subtract $ stageCost s)
   correctMeasurement <- lift $ binary $ getChance $ stageChance s
-  if correctMeasurement && not actualSuccess
+  {- stop on true negative or false negative:
+   -   true negative is correctMeasurement, not actualSuccess
+   -   false negative is not correctMeasurement, actualSuccess
+   -}
+  if correctMeasurement /= actualSuccess
     then return False
     else runStages actualSuccess stages
