@@ -9,7 +9,7 @@
     var stages = 0;
 
     var setup = {
-        successChance: 30,
+        successChance: 35,
         successMean: 500,
         successRatio: 5,
         successCost: 200,
@@ -146,8 +146,8 @@
     {
         stages = stageCount;
         for (var i = 1; i <= stages; ++i) {
-          setup['chance' + i] = 60;
-          setup['cost' + i] = 50;
+          setup['chance' + i] = 70;
+          setup['cost' + i] = 20;
         }
 
         Object.keys(setup).forEach(initInput);

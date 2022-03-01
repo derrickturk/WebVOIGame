@@ -55,7 +55,7 @@ intro = do
   p $ do
     "A mysterious, wealthy, stranger flips a coin with a "
     slider $ SliderSetup { name = "successChance"
-                         , value = 30.0
+                         , value = 35.0
                          , min = 0.0
                          , max = 100.0
                          , step = 5.0
@@ -72,7 +72,7 @@ intro = do
                          }
     " and a P10/P90 ratio of "
     slider $ SliderSetup { name = "successRatio"
-                         , value = 3.0
+                         , value = 5.0
                          , min = 1.5
                          , max = 10.0
                          , step = 0.5
@@ -122,7 +122,7 @@ stageBlocks n = go n guyNames guyRelations (1::Int) where
       text nm
       ", approaches you and offers a deal: for a cost of "
       slider $ SliderSetup { name = "cost" <> T.pack (show i)
-                           , value = 10.00
+                           , value = 20.00
                            , min = 0.0
                            , max = 200.0
                            , step= 5.0
@@ -132,7 +132,7 @@ stageBlocks n = go n guyNames guyRelations (1::Int) where
       text nm
       " is a known liar: in fact they tell the truth only "
       slider $ SliderSetup { name = "chance" <> T.pack (show i)
-                           , value = 60.0
+                           , value = 70.0
                            , min = 50.0
                            , max = 100.0
                            , step = 1.0
