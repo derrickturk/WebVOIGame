@@ -28,7 +28,7 @@ data SliderSetup =
               , step :: Double
               }
 
--- gross
+svg :: MarkupM a -> MarkupM a
 svg = Parent "svg" "<svg" "</svg>"
 
 pageTitle :: Int -> T.Text
@@ -111,7 +111,7 @@ guyRelations = relns <> cycle (("other " <>) <$> relns) where
           ]
 
 stageBlocks :: Int -> Html
-stageBlocks n = go n guyNames guyRelations 1 where
+stageBlocks n = go n guyNames guyRelations (1::Int) where
   go n _ _ _ 
     | n <= 0 = mempty
   go n (nm:names) (re:relns) i = do
@@ -133,12 +133,13 @@ stageBlocks n = go n guyNames guyRelations 1 where
       " is a known liar: in fact they tell the truth only "
       slider $ SliderSetup { name = "chance" <> T.pack (show i)
                            , value = 60.0
-                           , min = 0.0
+                           , min = 50.0
                            , max = 100.0
                            , step = 1.0
                            }
       "% of the time."
     go (n - 1) names relns (i + 1)
+  go _ _ _ _ = error "internal error, names/relations/count out of sync"
 
 resultsBlock :: Html
 resultsBlock = do
